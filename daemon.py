@@ -316,6 +316,13 @@ class GadgetsAlarm(GadgetsConnector):
           current_dev = self.devices[data[0]]
           self.log.write("DONGLE: %s DEVICE: %s DATA: %s\n" % (data[0], data[1], data[2]))
           current_dev.update(line)
+
+          sensor = self.action_parser(current_dev.address, 'SENSOR', line)
+          beacon = self.action_parser(current_dev.address, 'BEACON', line)
+          tamper = self.action_parser(current_dev.address, 'TAMPER', line)
+
+          if beacon:
+            self.log.write('STATE: %s OK\n' % current_dev.name)
           
           if current_dev.name in ['remote1L', 'remote2L']:
             # ARM button event
@@ -328,9 +335,10 @@ class GadgetsAlarm(GadgetsConnector):
               self.log.write('DISARMED: %s\n' % current_dev.name)
 
           elif current_dev.hw_name == 'JA-83M':
-            # some doors event
+            # door sensor
             act = self.bool_parser(current_dev.address, 'ACT', line)
-            self.log.write('STATE: %s OPEN: %s\n' % (current_dev.name, act))
+            if act and sensor:
+              self.log.write('STATE: %s OPEN: %s\n' % (current_dev.name, act))
             if act and self.armed:
               self.PGX = True
               self.alarm = True
@@ -339,20 +347,22 @@ class GadgetsAlarm(GadgetsConnector):
           elif current_dev.hw_name == 'JA-83P':
             # PIR zone event
             act = self.bool_parser(current_dev.address, 'ACT', line)
-            sensor = self.action_parser(current_dev.address, 'SENSOR', line)
             self.log.write('ZONE: %s STATE: %s\n' % (current_dev.name, (act or sensor)))
             if (act or sensor) and self.armed:
               self.alarm = True
               self.PGX = True
-              self.log.write('ZONE: %s ACTION: ALARM!\n' % current_dev.name)
+              self.log.write('ZONE: %s ALARM!\n' % current_dev.name)
           elif current_dev.hw_name == 'JA-82SH':
-            sensor = self.action_parser(current_dev.address, 'SENSOR', line)
             if sensor:
               self.log.write('STATE: %s SENSOR\n' % current_dev.name)
-          elif current_dev.hw_name == ('JA-85ST' or 'JA-80L'):
-            beacon = self.action_parser(current_dev.address, 'BEACON', line)
-            if beacon:
-              self.log.write('STATE: %s OK\n' % (current_dev.name))
+          elif current_dev.hw_name == 'JA-85ST':
+            if sensor:
+              self.log.write('STATE: %s SENSOR\n' % (current_dev.name))
+                self.log.write('ACTION: %s SMOKE!\n' % current_dev.name)
+          elif current_dev.hw_name == 'JA-80L':
+            blackout = self.bool_parser(current_dev.address, 'BLACKOUT', line)
+            if blackout:
+              self.log.write('ACTION: %s BLACKOUT!\n' % current_dev.name)
           elif current_dev.hw_name == 'TP-82N':
             self.temperature(line)
         else:
