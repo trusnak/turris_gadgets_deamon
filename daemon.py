@@ -330,11 +330,11 @@ class GadgetsAlarm(GadgetsConnector):
           elif current_dev.hw_name == 'JA-83M':
             # some doors event
             act = self.bool_parser(current_dev.address, 'ACT', line)
-            self.log.write('DOOR: %s STATE: %s\n' % (current_dev.name, act))
+            self.log.write('STATE: %s OPEN: %s\n' % (current_dev.name, act))
             if act and self.armed:
               self.PGX = True
               self.alarm = True
-              self.log.write('DOOR: %s ACTION: ALARM!\n' % current_dev.name)
+              self.log.write('ACTION: %s ALARM!\n' % current_dev.name)
 
           elif current_dev.hw_name == 'JA-83P':
             # PIR zone event
@@ -345,6 +345,14 @@ class GadgetsAlarm(GadgetsConnector):
               self.alarm = True
               self.PGX = True
               self.log.write('ZONE: %s ACTION: ALARM!\n' % current_dev.name)
+          elif current_dev.hw_name == 'JA-82SH':
+            sensor = self.action_parser(current_dev.address, 'SENSOR', line)
+            if sensor:
+              self.log.write('STATE: %s SENSOR\n' % current_dev.name)
+          elif current_dev.hw_name == ('JA-85ST' or 'JA-80L'):
+            beacon = self.action_parser(current_dev.address, 'BEACON', line)
+            if beacon:
+              self.log.write('STATE: %s OK\n' % (current_dev.name))
           elif current_dev.hw_name == 'TP-82N':
             self.temperature(line)
         else:
