@@ -9,18 +9,19 @@ It is written in Python, which is available by default on router Turris.
   
   NOTE: use git instead of http/https, because openwrt git package is compiled without curl
 
-##  edit devices dict
-
-  cd turris_gadgets_daemon
-  vim daemon.py
-
-  Example:
-  '00000001<-- replace me': GadgetDevice('00000001<-- replace me!', 'remote1L', 'RC-86K'),   
-  
-## run the daemon
-
+##  Edit devices dict
+```
+cd turris_gadgets_daemon
+vim daemon.py
+````
+Example:
+```
+'00000001<-- replace me': GadgetDevice('00000001<-- replace me!', 'remote1L', 'RC-86K'),   
+```  
+## Run the daemon
+```
  ./daemon start
-  
+``` 
 ## Features
   - daemonized script
   - logging to /var/log/gadgets.log
